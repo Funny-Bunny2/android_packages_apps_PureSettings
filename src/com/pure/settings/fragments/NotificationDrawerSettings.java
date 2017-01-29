@@ -48,7 +48,6 @@ public class NotificationDrawerSettings extends SettingsPreferenceFragment imple
     private static final String QS_CAT = "qs_panel";
 
     private static final String QUICK_PULLDOWN = "quick_pulldown";
-    private static final String PREF_SMART_PULLDOWN = "smart_pulldown";
     private static final String PREF_QSLOCK = "lockscreen_qs_disabled";
     private static final String PREF_COLUMNS = "qs_layout_columns";
     private static final String PREF_ROWS_PORTRAIT = "qs_rows_portrait";
@@ -60,7 +59,6 @@ public class NotificationDrawerSettings extends SettingsPreferenceFragment imple
     private static final String CUSTOM_HEADER_BROWSE = "custom_header_browse";
 
     private ListPreference mQuickPulldown;
-    ListPreference mSmartPulldown;
     private SecureSettingSwitchPreference mQsLock;
     private CustomSeekBarPreference mQsColumns;
     private CustomSeekBarPreference mRowsPortrait;
@@ -89,13 +87,6 @@ public class NotificationDrawerSettings extends SettingsPreferenceFragment imple
                 Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 1, UserHandle.USER_CURRENT);
         mQuickPulldown.setValue(String.valueOf(quickPulldownValue));
         updatePulldownSummary(quickPulldownValue);
-
-        mSmartPulldown = (ListPreference) findPreference(PREF_SMART_PULLDOWN);
-        mSmartPulldown.setOnPreferenceChangeListener(this);
-        int smartPulldown = Settings.System.getInt(resolver,
-                Settings.System.QS_SMART_PULLDOWN, 0);
-        mSmartPulldown.setValue(String.valueOf(smartPulldown));
-        updateSmartPulldownSummary(smartPulldown);
 
         mQsLock = (SecureSettingSwitchPreference) prefScreen.findPreference(PREF_QSLOCK);
         if (!lockPatternUtils.isSecure(MY_USER_ID)) {
@@ -182,11 +173,6 @@ public class NotificationDrawerSettings extends SettingsPreferenceFragment imple
                     quickPulldownValue, UserHandle.USER_CURRENT);
             updatePulldownSummary(quickPulldownValue);
             return true;
-        } else if (preference == mSmartPulldown) {
-            int smartPulldown = Integer.valueOf((String) newValue);
-            Settings.System.putInt(resolver, Settings.System.QS_SMART_PULLDOWN, smartPulldown);
-            updateSmartPulldownSummary(smartPulldown);
-            return true;
         } else if (preference == mQsColumns) {
             int qsColumns = (Integer) newValue;
             Settings.System.putInt(resolver, Settings.System.QS_LAYOUT_COLUMNS, qsColumns * 1);
@@ -237,22 +223,6 @@ public class NotificationDrawerSettings extends SettingsPreferenceFragment imple
                     ? R.string.quick_pulldown_left
                     : R.string.quick_pulldown_right);
             mQuickPulldown.setSummary(res.getString(R.string.quick_pulldown_summary, direction));
-        }
-    }
-
-    private void updateSmartPulldownSummary(int value) {
-        Resources res = getResources();
-
-        if (value == 0) {
-            // Smart pulldown deactivated
-            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_off));
-        } else if (value == 3) {
-            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_none_summary));
-        } else {
-            String type = res.getString(value == 1
-                    ? R.string.smart_pulldown_dismissable
-                    : R.string.smart_pulldown_ongoing);
-            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_summary, type));
         }
     }
 
